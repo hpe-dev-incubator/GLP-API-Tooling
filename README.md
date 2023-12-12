@@ -1,2 +1,2 @@
 # GLP-API-Tooling
-Tools for using the GreenLake Platform API 
+Tools for using the HPE GreenLake Platform API 
