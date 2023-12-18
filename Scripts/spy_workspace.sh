@@ -43,7 +43,7 @@ do
   --header "Authorization: $access_token")
 
   if [ "$http_response" != "200" ]; then
-      echo "API Error, restart to get a new token"
+      echo "Error calling the API or token has expired!"
       exit $http_response
   else
       cat out.json | jq '.items[] | { createdAt: .createdAt, username: .user.username, description: .description, ipAddress: .additionalInfo.ipAddress}'

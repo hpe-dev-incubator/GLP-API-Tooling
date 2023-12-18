@@ -49,9 +49,10 @@ while True:
 
     # Fetch audit logs since last minute
     response = requests.get(url=my_url, headers=my_headers)
-    
-    if response.status_code != 200:
-        print("Error calling the API or token has expired. Status code="+response.status_code)
+    try:
+        response.raise_for_status()
+    except:
+        print("Error calling the API or token has expired!")
         exit()
         
     # Process json response 

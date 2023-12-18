@@ -21,12 +21,16 @@ $body = "grant_type=client_credentials&client_id=" + $ClientID + "&client_secret
 # Get a Token
 $headers = @{} 
 $headers["Content-Type"] = "application/x-www-form-urlencoded"
-$response = Invoke-webrequest "https://sso.common.cloud.hpe.com/as/token.oauth2" -Method POST -Headers $headers -Body $body
 
-if ($response.StatusCode -ne 200) {
-    write-host "Error retrieving access token. Status code:" $response.StatusCode 
-    exit ($response.StatusCode)
+try {
+    $response = Invoke-webrequest "https://sso.common.cloud.hpe.com/as/token.oauth2" -Method POST -Headers $headers -Body $body
 }
+catch {
+    Write-Host "Error retrieving access token!" 
+    exit
+}
+
+
 
 # Capturing API Access Token
 $AccessToken = ($response.Content  | Convertfrom-Json).access_token
@@ -45,13 +49,14 @@ While ($true) {
     write-host "--------------------"
 
     # Fetch audit logs since last minute
-    $response = Invoke-webrequest "https://global.api.greenlake.hpe.com/audit-log/v1beta1/logs?filter=startTime%20ge%20'$sd'" -Method GET -Headers $headers 
-    
-    if ($response.StatusCode -ne 200) {
-        write-host "Error calling the API or token has expired. Status code:" $response.StatusCode 
-        exit ($response.StatusCode)
+    try {
+        $response = Invoke-webrequest "https://global.api.greenlake.hpe.com/audit-log/v1beta1/logs?filter=startTime%20ge%20'$sd'" -Method GET -Headers $headers 
     }
-    
+    catch {
+        write-host "Error calling the API or token has expired!"
+        exit
+    }
+ 
     # Process json response 
     $my_json=$response | ConvertFrom-Json
 
