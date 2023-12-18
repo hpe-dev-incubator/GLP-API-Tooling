@@ -21,23 +21,33 @@ else
   client_secret="${CLIENTSECRET}"
 fi
 
+# Get a token
+access_token="Bearer "`curl -s --location 'https://sso.common.cloud.hpe.com/as/token.oauth2' \
+--header 'Content-Type: application/x-www-form-urlencoded' \
+--data-urlencode 'grant_type=client_credentials' \
+--data-urlencode 'client_id='$client_id'' \
+--data-urlencode 'client_secret='$client_secret''  | jq .access_token | xargs`
+
+
+# Loop until CTRL-C or token expires (2 hours)
 for (( ; ; ))
 do
   d=`date -v "-1M" -u +"%Y-%m-%dT%H:%M:%S.00Z"`
   echo Last check at \(UTC\): $d
   echo '---------------------'
 
-  # Get a token
-  access_token="Bearer "`curl -s --location 'https://sso.common.cloud.hpe.com/as/token.oauth2' \
-  --header 'Content-Type: application/x-www-form-urlencoded' \
-  --data-urlencode 'grant_type=client_credentials' \
-  --data-urlencode 'client_id='$client_id'' \
-  --data-urlencode 'client_secret='$client_secret''  | jq .access_token | xargs`
-  
+
   # Fetch audit logs since last minute
-  curl -s --location "https://global.api.greenlake.hpe.com/audit-log/v1beta1/search?filter=startTime%20eq%20'$d'" \
+  http_response=$(curl -s -o out.json -w "%{http_code}" --location "https://global.api.greenlake.hpe.com/audit-log/v1beta1/logs?filter=startTime%20ge%20'$d'" \
   --header 'Accept: application/json' \
-  --header "Authorization: $access_token" | jq '.items[] | { auditCreatedAt: .auditCreatedAt, username: .username, description: .description, ipAddress: .additionalInfo.ipAddress }'
+  --header "Authorization: $access_token")
+
+  if [ "$http_response" != "200" ]; then
+      echo "API Error, restart to get a new token"
+      exit $http_response
+  else
+      cat out.json | jq '.items[] | { createdAt: .createdAt, username: .user.username, description: .description, ipAddress: .additionalInfo.ipAddress}'
+  fi  
 
   # Wait a minute and check again
   sleep 60

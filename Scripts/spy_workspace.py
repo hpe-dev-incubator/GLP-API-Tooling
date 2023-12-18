@@ -20,12 +20,19 @@ if client_secret == "":
 
 client = BackendApplicationClient(client_id)       
 oauth = OAuth2Session(client=client)       
-auth = HTTPBasicAuth(client_id,client_secret)       
+auth = HTTPBasicAuth(client_id,client_secret)  
 
-
-while True:
+# Get a Token
+try:
     token = oauth.fetch_token(token_url='https://sso.common.cloud.hpe.com/as/token.oauth2', auth=auth)       
-    my_token = "Bearer " + token["access_token"]
+except:
+    print("Error retrieving access token.")
+    exit()
+
+my_token = "Bearer " + token["access_token"]
+
+# Loop until CTRL-C or token expires (2 hours)
+while True:
 
     # Get date in right format
     now = datetime.utcnow() + timedelta(minutes = -1)
@@ -38,19 +45,29 @@ while True:
         'accept': 'application/json',
         'Authorization': my_token,
     }
+    my_url = "https://global.api.greenlake.hpe.com/audit-log/v1beta1/logs?filter=startTime%20ge%20'" + date + "'"
 
     # Fetch audit logs since last minute
-    my_url = "https://global.api.greenlake.hpe.com/audit-log/v1beta1/search?filter=startTime%20eq%20'" + date + "'"
-
     response = requests.get(url=my_url, headers=my_headers)
+    
+    if response.status_code != 200:
+        print("Error calling the API or token has expired. Status code="+response.status_code)
+        exit()
+        
+    # Process json response 
     json = response.json() 
 
     e = 0
     while (e < json['count']):
-        print('auditCreatedAt: '+ json['items'][e]['auditCreatedAt'])
-        print('username: ' + json['items'][e]['username'])
+        print('createdAt: '+ json['items'][e]['createdAt'])
+        print('username: ' + json['items'][e]['user']['username'])
         print('description: ' + json['items'][e]['description'])
-        print('ipAddress: ' + json['items'][e]['additionalInfo']['ipAddress'])
+        try:
+            print('ipAddress: ' + json['items'][e]['additionalInfo']['ipAddress'])
+        except: {
+            print('ipAddress:')
+        }
+
         print('-----------')
         e = e + 1 
 
