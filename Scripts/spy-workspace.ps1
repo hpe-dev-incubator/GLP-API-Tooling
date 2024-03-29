@@ -58,9 +58,13 @@ While ($true) {
     }
  
     # Process json response 
-    $my_json=$response | ConvertFrom-Json
+    $my_json =$response | ConvertFrom-Json
+    $my_items = $my_json.items
 
-    foreach ($i in $my_json.items){
+    $my_items_sorted = $my_items | Sort-Object -Property createdAt
+
+
+    foreach ($i in $my_items_sorted){
         write-host "createdAt:" $i.createdAt
         write-host "username: " $i.user.username 
         write-host "description: " $i.description 
