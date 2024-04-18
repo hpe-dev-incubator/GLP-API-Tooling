@@ -50,7 +50,7 @@ While ($true) {
 
     # Fetch audit logs since last minute
     try {
-        $response = Invoke-webrequest "https://global.api.greenlake.hpe.com/audit-log/v1beta1/logs?filter=startTime%20ge%20'$sd'" -Method GET -Headers $headers 
+        $response = Invoke-webrequest "https://global.api.greenlake.hpe.com/audit-log/v1beta1/logs?filter=createdAt%20ge%20'$sd'" -Method GET -Headers $headers 
     }
     catch {
         write-host "Error calling the API or token has expired!"
