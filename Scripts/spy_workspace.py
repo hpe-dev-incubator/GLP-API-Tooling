@@ -45,7 +45,7 @@ while True:
         'accept': 'application/json',
         'Authorization': my_token,
     }
-    my_url = "https://global.api.greenlake.hpe.com/audit-log/v1beta1/logs?filter=startTime%20ge%20'" + date + "'"
+    my_url = "https://global.api.greenlake.hpe.com/audit-log/v1beta1/logs?filter=createdAt%20ge%20'" + date + "'"
 
     # Fetch audit logs since last minute
     response = requests.get(url=my_url, headers=my_headers)

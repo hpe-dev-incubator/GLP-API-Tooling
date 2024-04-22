@@ -38,7 +38,7 @@ do
 
 
   # Fetch audit logs since last minute
-  http_response=$(curl -s -o out.json -w "%{http_code}" --location "https://global.api.greenlake.hpe.com/audit-log/v1beta1/logs?filter=startTime%20ge%20'$d'" \
+  http_response=$(curl -s -o out.json -w "%{http_code}" --location "https://global.api.greenlake.hpe.com/audit-log/v1beta1/logs?filter=createdAt%20ge%20'$d'" \
   --header 'Accept: application/json' \
   --header "Authorization: $access_token")
 
