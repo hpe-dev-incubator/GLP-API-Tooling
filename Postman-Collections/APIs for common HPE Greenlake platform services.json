@@ -7144,6 +7144,64 @@
 									"item": [
 										{
 											"name": "Get service managers",
+											"event": [
+												{
+													"listen": "test",
+													"script": {
+														"exec": [
+															"// Test in Postman to find service manager keyword (for example \"Aruba Central\") in each \"name\" field of each object\r",
+															"// returned in the Response body. If the name field matches the service manager keyword, then save the Id in the \r",
+															"// collection variable: Service-Manager-Id.\r",
+															"\r",
+															"// Create the constant variable responseJson to access the JSON response body and to parse the API response JSON data:\r",
+															"const responseJson = pm.response.json();\r",
+															"\r",
+															"//Retrieve the Collection Variable you defined for the ServiceManagerName (for example: Aruba Central):\r",
+															"var SMName = pm.collectionVariables.get(\"ServiceManagerName\");\r",
+															"// Display in Test result the name of the Service Manager keyword:\r",
+															"pm.test(\"Service Manager Name is: \" + SMName);\r",
+															"\r",
+															"// Display in Test Results the number of elements (objects) in the JSON response body:\r",
+															"pm.test(\"Number of item objects in the array: \" + responseJson.count);\r",
+															"\r",
+															"// Check if there is an element (Service Manager) with name matching the variable SMName:\r",
+															"// The some() method tests whether at least one element in the array satisfies the condition \"name = SMName\"\r",
+															"// The arrow function is passed in as an argument to search for the element with name matching 'SMName'.\r",
+															"// The some() method returns true if the element is found.\r",
+															"const hasServiceManager = responseJson.items.some(x => x.name === SMName);\r",
+															"console.log(hasServiceManager);\r",
+															"\r",
+															"if (hasServiceManager) {\r",
+															"\r",
+															"    console.log(\"There is a Service Manager with the name: \" + SMName);\r",
+															"    // If there is an element that satisfies the condition, then save the ID in the collection variable. \r",
+															"    // Set Collection variables using the Find function on the response JSON body \r",
+															"    // and pass in the Arrow function expression as an argument to search for the first element \r",
+															"    // having the \"name = SMName\". \r",
+															"    // The arrow function takes obj as a parameter and returns the element that has name = SMName\r",
+															"    // The collection variable Service-Manager-Id is then set with the Id of the element \r",
+															"\r",
+															"    var result = responseJson.items.find(obj => obj.name === SMName);\r",
+															"    console.log(result);\r",
+															"    pm.collectionVariables.set(\"Service-Manager-Id\", result.id);\r",
+															"    // pm.collectionVariables.set(\"Service-Manager-Id\", (responseJson.items.find(obj => obj.name === SMName).id));\r",
+															"    console.log(\"Item matching the keyword \" + SMName + \" has been found : \" + result.name + \" \" + result.description);\r",
+															"    console.log(\"Value of Service Manager Id : \" + result.id);\r",
+															"    pm.test(\"Value of Service Manager Id : \" + result.id);\r",
+															" } \r",
+															" else {\r",
+															"    console.log(\"No Service Manager with the name: \" + SMName);\r",
+															" }\r",
+															"\r",
+															"console.log(responseJson)\r",
+															"\r",
+															""
+														],
+														"type": "text/javascript",
+														"packages": {}
+													}
+												}
+											],
 											"request": {
 												"method": "GET",
 												"header": [
@@ -8058,7 +8116,7 @@
 													"variable": [
 														{
 															"key": "id",
-															"value": "<region>",
+															"value": "{{RegionId}}",
 															"description": "(Required) HPE GreenLake platform defined region code."
 														}
 													]
@@ -17899,6 +17957,16 @@
 			"type": "string"
 		},
 		{
+			"key": "RegionId",
+			"value": "SetYourRegionID (e.g: eu-central)",
+			"type": "string"
+		},
+		{
+			"key": "ServiceManagerName",
+			"value": "SetYourServiceManagerName (e.g: Aruba Central)",
+			"type": "string"
+		},
+		{
 			"key": "DeviceId",
 			"value": "",
 			"type": "string"
@@ -17945,6 +18013,11 @@
 		},
 		{
 			"key": "MSP-TenantId",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "Service-Manager-Id",
 			"value": "",
 			"type": "string"
 		}
