@@ -137,7 +137,7 @@ resource "hpegl_vmaas_instance" "sample_vm" {
     purpose           = "sample"
     Division          = "AUK"
     ResourcePurpose   = "CFE"
-    ResourceContact   = "john.lenihan@hpe.com"
+    ResourceContact   = "john.doe@hpe.com"
     APPLICATION       = "Custom Ubuntu"
     BillingCostCenter = "999"
     PatchGroup        = "None"
